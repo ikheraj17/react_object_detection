@@ -1,77 +1,114 @@
-import React, { useEffect, useRef, createRef } from "react";
-import logo from "./logo.svg";
+import React, { useEffect, createRef } from "react";
 import "./App.css";
-import * as tf from "@tensorflow/tfjs";
-import * as mobilenet from "@tensorflow-models/mobilenet";
+import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
-function App() {
+const App = () => {
+
+  const styles = {
+    position: 'fixed',
+    top: 150,
+    left: 150,
+  };
+
   const videoElement = createRef(null);
+  const canvasElement = createRef();
+
+   const detectFromVideoFrame = (model, video) => {
+    model.detect(video).then(predictions => {
+      showDetections(predictions);
+
+      requestAnimationFrame(() => {
+        detectFromVideoFrame(model, video);
+      });
+    }, (error) => {
+      console.log("Couldn't start the webcam")
+      console.error(error)
+    });
+  };
+
+   const showDetections = predictions => {
+    const context = canvasElement.current.getContext("2d");
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    const font = "24px helvetica";
+    context.font = font;
+    context.textBaseline = "top";
+
+    predictions.forEach(prediction => {
+      const x = prediction.bbox[0];
+      const y = prediction.bbox[1];
+      const width = prediction.bbox[2];
+      const height = prediction.bbox[3];
+      // Draw box
+      context.strokeStyle = "#2fff00";
+      context.lineWidth = 1;
+      context.strokeRect(x, y, width, height);
+      // Draw label with background
+      context.fillStyle = "#2fff00";
+      const textWidth = context.measureText(prediction.class).width;
+      const textHeight = parseInt(font, 10);
+      // draw top left rectangle
+      context.fillRect(x, y, textWidth + 10, textHeight + 10);
+      // draw bottom left rectangle
+      context.fillRect(x, y + height - textHeight, textWidth + 15, textHeight + 10);
+
+      // Draw text last to ensure it's on top.
+      context.fillStyle = "#000000";
+      context.fillText(prediction.class, x, y);
+      context.fillText(prediction.score.toFixed(2), x, y + height - textHeight);
+    });
+  }
 
   useEffect(() => {
     async function prepare() {
-      let net = await mobilenet.load();
+      let net = cocoSsd.load();
       console.log("loaded model");
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
+        
+          const stream = navigator.mediaDevices.getUserMedia({
+            audio: false,
             video: true,
-          });
-          window.stream = stream;
-          videoElement.current.srcObject = stream;
-          let webcamElement = document.getElementById("blah");
-          const webcam = await tf.data.webcam(webcamElement);
-          while (true) {
-            const img = await webcam.capture();
-            const result = await net.classify(img);
-
-            console.log(`prediction: ${result[0].className}\n
-              probability: ${result[0].probability}
-            `);
-            img.dispose();
-
-            await tf.nextFrame();
-          }
-        } catch (error) {
-          console.error(error);
+          })
+            .then(stream => {
+              window.stream = stream;
+              videoElement.current.srcObject = stream;
+              return new Promise(resolve => {
+                videoElement.current.onloadedmetadata = () => {
+                  resolve();
+                };
+              });
+            }, (error => {
+              console.log('there was an error starting the webcam');
+            }))
+          Promise.all([net, stream])
+            .then(values => {
+              detectFromVideoFrame(values[0], videoElement.current);
+            })
+            .catch(err => {
+              console.error(err);
+            });
         }
       }
+      prepare();
     }
-    prepare();
-  }, []);
+  )
 
   return (
     <div className="App">
+      <div className="title">
+        <p>This application uses tensorflow.js and  the pretrained coco-ssd model to make predictions about the type of object on the screen. The numbers that are part of each green prediction box are the model's prediction confidence level for the object in frame.</p>
+        <p>When prompted, give the application access to your webcam and the live predictions will begin!</p>
+        </div> 
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        {/* <Cam /> */}
-        <img
-          id="img"
-          src={"https://i.imgur.com/JlUvsxa.jpg"}
-          crossOrigin="anonymous"
-          width="227"
-          height="227"
-          alt="pic"
-        />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
         <video
           id="blah"
+          style={styles}
           ref={videoElement}
-          width="640"
-          height="640"
+          width="720"
+          height="600"
           autoPlay
           muted
         />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <canvas style={styles} ref={canvasElement} width="720" height="650" />
       </header>
     </div>
   );
