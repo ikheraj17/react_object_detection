@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, createRef } from "react";
-import logo from "./logo.svg";
+import React, { useEffect, createRef } from "react";
 import "./App.css";
-import * as tf from "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 const App = () => {
@@ -29,34 +27,34 @@ const App = () => {
   };
 
    const showDetections = predictions => {
-    const ctx = canvasElement.current.getContext("2d");
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const context = canvasElement.current.getContext("2d");
+    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     const font = "24px helvetica";
-    ctx.font = font;
-    ctx.textBaseline = "top";
+    context.font = font;
+    context.textBaseline = "top";
 
     predictions.forEach(prediction => {
       const x = prediction.bbox[0];
       const y = prediction.bbox[1];
       const width = prediction.bbox[2];
       const height = prediction.bbox[3];
-      // Draw the bounding box.
-      ctx.strokeStyle = "#2fff00";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x, y, width, height);
-      // Draw the label background.
-      ctx.fillStyle = "#2fff00";
-      const textWidth = ctx.measureText(prediction.class).width;
+      // Draw box
+      context.strokeStyle = "#2fff00";
+      context.lineWidth = 1;
+      context.strokeRect(x, y, width, height);
+      // Draw label with background
+      context.fillStyle = "#2fff00";
+      const textWidth = context.measureText(prediction.class).width;
       const textHeight = parseInt(font, 10);
       // draw top left rectangle
-      ctx.fillRect(x, y, textWidth + 10, textHeight + 10);
+      context.fillRect(x, y, textWidth + 10, textHeight + 10);
       // draw bottom left rectangle
-      ctx.fillRect(x, y + height - textHeight, textWidth + 15, textHeight + 10);
+      context.fillRect(x, y + height - textHeight, textWidth + 15, textHeight + 10);
 
-      // Draw the text last to ensure it's on top.
-      ctx.fillStyle = "#000000";
-      ctx.fillText(prediction.class, x, y);
-      ctx.fillText(prediction.score.toFixed(2), x, y + height - textHeight);
+      // Draw text last to ensure it's on top.
+      context.fillStyle = "#000000";
+      context.fillText(prediction.class, x, y);
+      context.fillText(prediction.score.toFixed(2), x, y + height - textHeight);
     });
   }
 
@@ -81,8 +79,6 @@ const App = () => {
             }, (error => {
               console.log('there was an error starting the webcam');
             }))
-          let webcamElement = document.getElementById("blah");
-          // const webcam = await tf.data.webcam(webcamElement);
           Promise.all([net, stream])
             .then(values => {
               detectFromVideoFrame(values[0], videoElement.current);
@@ -94,18 +90,18 @@ const App = () => {
       }
       prepare();
     }
-  ,[])
-    // prepare();
+  )
 
   return (
     <div className="App">
+      <div className="title">
+        <p>This application uses tensorflow.js and  the pretrained coco-ssd model to make predictions about the type of object on the screen. The numbers that are part of each green prediction box are the model's prediction confidence level for the object in frame.</p>
+        <p>When prompted, give the application access to your webcam and the live predictions will begin!</p>
+        </div> 
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
         <video
           id="blah"
+          style={styles}
           ref={videoElement}
           width="720"
           height="600"
@@ -113,14 +109,6 @@ const App = () => {
           muted
         />
         <canvas style={styles} ref={canvasElement} width="720" height="650" />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
     </div>
   );
