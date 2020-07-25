@@ -11,4 +11,6 @@ To get the project up and running, you should run:
 
 ### `npm run build` to build the application for production to the `build` folder
 
-### `npm start` to begin hosting the application locally. You can access it in your browser at [http://localhost:3000](http://localhost:3000)
+### `npm start` to begin hosting the application. You can access it in your browser at [http://localhost:3000](http://localhost:3000)
+
+
