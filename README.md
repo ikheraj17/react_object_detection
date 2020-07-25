@@ -1,4 +1,7 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Summary
+
+This application utilizes React Hooks, Tensorflow.js, and the coco-ssd image recognition model to predict
+objects displayed from a computer's camera feed. This project serves as an example of the awesome capabilities of machine learning!
 
 ## Instructions
 
