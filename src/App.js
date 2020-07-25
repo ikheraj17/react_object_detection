@@ -6,8 +6,14 @@ import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 const App = () => {
 
+  const styles = {
+    position: 'fixed',
+    top: 150,
+    left: 150,
+  };
+
   const videoElement = createRef(null);
-  const canvasElement = createRef(null);
+  const canvasElement = createRef();
 
    const detectFromVideoFrame = (model, video) => {
     model.detect(video).then(predictions => {
@@ -56,36 +62,40 @@ const App = () => {
 
   useEffect(() => {
     async function prepare() {
-      let net = await cocoSsd.load();
+      let net = cocoSsd.load();
       console.log("loaded model");
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
+        
+          const stream = navigator.mediaDevices.getUserMedia({
             audio: false,
             video: true,
-          });
-          window.stream = stream;
-          videoElement.current.srcObject = stream;
+          })
+            .then(stream => {
+              window.stream = stream;
+              videoElement.current.srcObject = stream;
+              return new Promise(resolve => {
+                videoElement.current.onloadedmetadata = () => {
+                  resolve();
+                };
+              });
+            }, (error => {
+              console.log('there was an error starting the webcam');
+            }))
           let webcamElement = document.getElementById("blah");
-          const webcam = await tf.data.webcam(webcamElement);
-          while (true) {
-            const img = await webcam.capture();
-            const result = await net.classify(img);
-
-            console.log(`prediction: ${result[0].className}\n
-              probability: ${result[0].probability}
-            `);
-            img.dispose();
-
-            await tf.nextFrame();
-          }
-        } catch (error) {
-          console.error(error);
+          // const webcam = await tf.data.webcam(webcamElement);
+          Promise.all([net, stream])
+            .then(values => {
+              detectFromVideoFrame(values[0], videoElement.current);
+            })
+            .catch(err => {
+              console.error(err);
+            });
         }
       }
+      prepare();
     }
-    prepare();
-  }, []);
+  ,[])
+    // prepare();
 
   return (
     <div className="App">
@@ -97,11 +107,12 @@ const App = () => {
         <video
           id="blah"
           ref={videoElement}
-          width="640"
-          height="640"
+          width="720"
+          height="600"
           autoPlay
           muted
         />
+        <canvas style={styles} ref={canvasElement} width="720" height="650" />
         <a
           className="App-link"
           href="https://reactjs.org"
