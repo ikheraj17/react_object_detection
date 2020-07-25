@@ -7,15 +7,8 @@ objects displayed from a computer's camera feed. This project serves as an examp
 
 To get the project up and running, you should run:
 
-### `npm install`
+### `npm install` to install all necessary dependencies
 
-Installs all necessary dependencies
+### `npm run build` to build the application for production to the `build` folder
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-### `npm start`
-
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### `npm start` to begin hosting the application locally. You can access it in your browser at [http://localhost:3000](http://localhost:3000)
