@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-##Instructions
+## Instructions
 
 To get the project up and running, you should run:
 
