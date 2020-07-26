@@ -2,7 +2,7 @@
   "name": "react_obj_detection",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://ikheraj17.github.io/react_object_detection/",
+  "homepage": "https://imrankheraj.com/react_object_detection/",
   "dependencies": {
     "@tensorflow-models/mobilenet": "^2.0.4",
     "@tensorflow/tfjs": "^2.0.1",
