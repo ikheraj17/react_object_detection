@@ -6,8 +6,7 @@ const App = () => {
 
   const styles = {
     position: 'fixed',
-    top: 150,
-    left: 150,
+    top: 300
   };
 
   const videoElement = createRef(null);
@@ -60,8 +59,6 @@ const App = () => {
 
   useEffect(() => {
     async function prepare() {
-      let net = cocoSsd.load();
-      console.log("loaded model");
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         
           const stream = navigator.mediaDevices.getUserMedia({
@@ -78,7 +75,9 @@ const App = () => {
               });
             }, (error => {
               console.log('there was an error starting the webcam');
-            }))
+            }));
+        let net = cocoSsd.load();
+        console.log("loaded model");
           Promise.all([net, stream])
             .then(values => {
               detectFromVideoFrame(values[0], videoElement.current);
@@ -103,12 +102,12 @@ const App = () => {
           id="blah"
           style={styles}
           ref={videoElement}
-          width="720"
-          height="600"
+          width="420"
+          height="500"
           autoPlay
           muted
         />
-        <canvas style={styles} ref={canvasElement} width="720" height="650" />
+        <canvas style={styles} ref={canvasElement} width="420" height="550" />
       </header>
     </div>
   );
