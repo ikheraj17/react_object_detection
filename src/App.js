@@ -102,7 +102,7 @@ const App = () => {
           autoPlay
           muted
         />
-        <canvas style={styles} ref={canvasElement} width="420" height="550" color="blue" />
+        <canvas style={styles} ref={canvasElement} width="420" height="550" />
       </header>
     </div>
   );
