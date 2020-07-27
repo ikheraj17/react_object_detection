@@ -6,7 +6,7 @@ const App = () => {
 
   const styles = {
     position: 'fixed',
-    top: 300,
+    top: 100,
   };
 
   const videoElement = createRef(null);
@@ -77,7 +77,6 @@ const App = () => {
               console.log('there was an error starting the webcam');
             }));
             let net = cocoSsd.load();
-            console.log("loaded model");
           Promise.all([net, stream])
             .then(values => {
               detectFromVideoFrame(values[0], videoElement.current);
@@ -93,10 +92,6 @@ const App = () => {
 
   return (
     <div className="App">
-      <div className="title">
-        <p>This application uses tensorflow.js and  the pretrained coco-ssd model to make predictions about the type of object on the screen. The numbers that are part of each green prediction box are the model's prediction confidence level for the object in frame.</p>
-        <p>When prompted, give the application access to your webcam and the live predictions will begin!</p>
-        </div> 
       <header className="App-header">
         <video
           id="blah"
